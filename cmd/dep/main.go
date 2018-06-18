@@ -8,10 +8,12 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -23,6 +25,16 @@ import (
 	"github.com/golang/dep"
 	"github.com/golang/dep/internal/fs"
 )
+
+func init() {
+	if os.Getenv("HTTPS_PROXY") != "" {
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		err := os.Setenv("GIT_SSL_NO_VERIFY", "true")
+		if err != nil {
+			panic(err)
+		}
+	}
+}
 
 var (
 	successExitCode = 0
